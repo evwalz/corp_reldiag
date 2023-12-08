@@ -9,11 +9,15 @@ Load the necessary functions
 from corp_functions import reliabilitydiag, reldiag
 ```
 
-Load numpy and simulate some example data
+Load numpy to simulate some data
 
 
 ```python
 import numpy as np
+```
+
+
+```python
 n = 400
 p1 = np.random.uniform(low=0.0, high=1.0, size=n)
 ybin = np.random.binomial(1, np.sqrt(p1), n)
@@ -24,7 +28,7 @@ Compute reliability object and plot output
 
 ```python
 rel_object = reliabilitydiag(p1, ybin)
-print(rel_object.ptype)
+reldiag.corp_plot(rel_object)
 ```
 
     continuous
@@ -32,12 +36,12 @@ print(rel_object.ptype)
 
 
 ```python
-reldiag.corp_plot(rel_object)
+
 ```
 
 
     
-![png](README_files/README_7_0.png)
+![png](README_files/README_8_0.png)
     
 
 
@@ -78,6 +82,6 @@ reldiag.corp_plot(rel_object)
 
 
     
-![png](README_files/README_13_0.png)
+![png](README_files/README_14_0.png)
     
 
