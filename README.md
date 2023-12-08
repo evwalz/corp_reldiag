@@ -28,16 +28,12 @@ Compute reliability object and plot output
 
 ```python
 rel_object = reliabilitydiag(p1, ybin)
-```
-
-
-```python
 reldiag.corp_plot(rel_object)
 ```
 
 
     
-![png](README_files/README_8_0.png)
+![png](README_files/README_7_0.png)
     
 
 
@@ -56,16 +52,11 @@ Compute reliability object and plot output
 
 ```python
 rel_object = reliabilitydiag(p1, ybin)
-
-```
-
-
-```python
 reldiag.corp_plot(rel_object)
 ```
 
 
     
-![png](README_files/README_13_0.png)
+![png](README_files/README_11_0.png)
     
 
