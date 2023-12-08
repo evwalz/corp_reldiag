@@ -37,6 +37,18 @@ reldiag.corp_plot(rel_object)
     
 
 
+
+```python
+rel_object = reliabilitydiag(p1, ybin, region_position = 'estimate')
+reldiag.corp_plot(rel_object)
+```
+
+
+    
+![png](README_files/README_8_0.png)
+    
+
+
 Simulate discrete type of data
 
 
@@ -51,12 +63,33 @@ Compute reliability object and plot output
 
 
 ```python
+import numpy as np
+ybin = np.loadtxt( '/Users/eva/Documents/Work/data/ybin.txt')
+p1 = np.loadtxt('/Users/eva/Documents/Work/data/p1.txt')
+```
+
+
+```python
 rel_object = reliabilitydiag(p1, ybin)
 reldiag.corp_plot(rel_object)
 ```
 
 
     
-![png](README_files/README_11_0.png)
+![png](README_files/README_13_0.png)
     
 
+
+
+```python
+rel_object = reliabilitydiag(p1, ybin, region_position = 'estimate')
+reldiag.corp_plot(rel_object)
+```
+
+
+    
+![png](README_files/README_14_0.png)
+    
+
+
+The End
