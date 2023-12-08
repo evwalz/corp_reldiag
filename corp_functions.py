@@ -68,7 +68,7 @@ class reldiag:
         ax.text( 0.01, 0.81, 'UNC = '+unc, fontsize = 12) 
 
     
-def reliabilitydiag(p, ybin):
+def reliabilitydiag(p, ybin, region_position = 'diagonal'):
     if any(p > 1) or any(p < 0):
         raise ValueError("p must be between 0 and 1")
     y_disc = np.sort(np.unique(ybin))
@@ -107,7 +107,7 @@ def reliabilitydiag(p, ybin):
     scores = pd.DataFrame({'ms':[mean_score], 'mcb':[miscalibration], 'dsc': [discrimination], 'unc':[uncertainty]})
 
     # region_method equals resampling
-    regions = region_resampling(cases, bins, region_level=0.9, region_position='diagonal', n_boot=100)
+    regions = region_resampling(cases, bins, region_level=0.9, region_position=region_position, n_boot=100)
     reldiag_object = reldiag(cases = cases, bins = bins, regions = regions, scores = scores, ptype = ptype)
     return reldiag_object
 
@@ -170,7 +170,10 @@ def region_resampling(df_pav, df_bins, region_level, region_position, n_boot):
                                       n=('x', 'count')).reset_index()
     n_pav = df_pav.shape[0]
     n_regions = regions.shape[0]
-    x0 = df_pav['CEP_pav']
+    if region_position == 'estimate':
+        x0 = df_pav['CEP_pav']
+    else:
+        x0 = df_pav['x']
 
     def isofit(y):
         return IsotonicRegression().fit_transform(np.arange(len(y)), y)
