@@ -31,17 +31,9 @@ rel_object = reliabilitydiag(p1, ybin)
 reldiag.corp_plot(rel_object)
 ```
 
-    continuous
-
-
-
-```python
-
-```
-
 
     
-![png](README_files/README_8_0.png)
+![png](README_files/README_7_0.png)
     
 
 
@@ -55,33 +47,16 @@ p1 = np.asarray(random.choices((np.arange(k)+0.5) / k, k=n))
 ybin = np.random.binomial(1, np.sqrt(p1), n)
 ```
 
-
-```python
-import random
-n = 400
-k = 10
-p1 = np.asarray(random.choices((np.arange(k)+0.5) / k, k=n))
-ybin = np.random.binomial(1, np.sqrt(p1), n)
-```
-
 Compute reliability object and plot output
 
 
 ```python
 rel_object = reliabilitydiag(p1, ybin)
-print(rel_object.ptype)
-```
-
-    discrete
-
-
-
-```python
 reldiag.corp_plot(rel_object)
 ```
 
 
     
-![png](README_files/README_14_0.png)
+![png](README_files/README_11_0.png)
     
 
