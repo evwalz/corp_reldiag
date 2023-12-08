@@ -9,47 +9,56 @@ import random
 
 
 class reldiag:
-    def __init__(self, cases, bins, regions, scores):
+    def __init__(self, cases, bins, regions, scores, ptype):
         self.cases = cases
         self.bins = bins
         self.regions = regions
         self.scores = scores
+        self.ptype = ptype
 
     def corp_plot(self):
         fig, ax = plt.subplots()
         cali_fct = self.cases['CEP_pav'].to_numpy()
         probs_grid_test = self.cases['x'].to_numpy()
         ax.plot([0, 1], [0, 1], 'black', linewidth=0.5)
-
         data = self.cases['x'].to_numpy()
-        iqr_val = iqr(data)
-        if iqr_val < 0.000001:
-            bin_size = 1 / 400
+        if self.ptype == 'discrete':
+            x_unique = np.sort(np.unique(data))
+            eps = np.minimum(np.min(np.diff(x_unique)) / 8, 0.02)
+            bin_seq = np.repeat(x_unique, 2) + np.tile(np.array([-eps, eps]), len(x_unique))
+            weights = np.ones_like(data) / len(data)
+            ax.hist(data, weights=weights, facecolor='None', ec='black', bins=bin_seq)
+
+            ax.plot(np.sort(probs_grid_test), np.sort(cali_fct), color='red', linewidth=0.5)
+            ax.plot(np.sort(probs_grid_test), np.sort(cali_fct),'.', color='red')
         else:
-            bin_size = 2 * iqr_val / len(data) ** (1 / 3)
-        val = int(np.round((np.max(data) - np.min(data)) / bin_size))
-        if val < 5:
-            val = 5
-        bin_seq = np.linspace(start=np.min(data), stop=np.max(data), num=(val + 1))
-        weights = np.ones_like(data) / len(data)
-        ax.hist(data, weights=weights, facecolor='None', ec='black', bins=bin_seq)
+            iqr_val = iqr(data)
+            if iqr_val < 0.000001:
+                bin_size = 1 / 400
+            else:
+                bin_size = 2 * iqr_val / len(data) ** (1 / 3)
+            val = int(np.round((np.max(data) - np.min(data)) / bin_size))
+            if val < 5:
+                val = 5
+            bin_seq = np.linspace(start=np.min(data), stop=np.max(data), num=(val + 1))
+            weights = np.ones_like(data) / len(data)
+            ax.hist(data, weights=weights, facecolor='None', ec='black', bins=bin_seq)
+
+            ax.plot(np.sort(probs_grid_test), np.sort(cali_fct), color='red', linewidth=0.5)
+            bmin = self.bins['x_min'].to_numpy()
+            bmax = self.bins['x_max'].to_numpy()
+            bcali = self.bins['CEP_pav'].to_numpy()
+            for k in range(len(bcali)):
+                seg = [bmin[k], bmax[k]]
+                y = bcali[k]
+                ax.plot(seg, [y, y], color='red', linewidth=3)
+            # plt.plot(probs_grid_test, cali_fct, '.', color = 'red')
 
         ax.set_xlabel('Forecast probability')
         # ax[i].set_ylabel('Conditional event probability')
         ax.set_ylabel('Conditional event probability')
-        ax.set_ylabel('Conditional event probability')
         ax.fill_between(self.regions['x'].to_numpy(), self.regions['lower'].to_numpy(), self.regions['upper'].to_numpy(), alpha=.15,
-                        color='#0000FF')
-
-        ax.plot(np.sort(probs_grid_test), np.sort(cali_fct), color='red', linewidth=0.5)
-        bmin = self.bins['x_min'].to_numpy()
-        bmax = self.bins['x_max'].to_numpy()
-        bcali = self.bins['CEP_pav'].to_numpy()
-        for k in range(len(bcali)):
-            seg = [bmin[k], bmax[k]]
-            y = bcali[k]
-            ax.plot(seg, [y, y], color='red', linewidth=3)
-        # plt.plot(probs_grid_test, cali_fct, '.', color = 'red')
+                            color='#0000FF')
 
         mcb = str(np.round(self.scores['mcb'][0], 3))
         dsc = str(np.round(self.scores['dsc'][0], 3))
@@ -59,17 +68,19 @@ class reldiag:
         ax.text( 0.01, 0.81, 'UNC = '+unc, fontsize = 12) 
 
     
-def reliabilitydiag(p1, ybin):
-    if any(p1 > 1) or any(p1 < 0):
+def reliabilitydiag(p, ybin):
+    if any(p > 1) or any(p < 0):
         raise ValueError("p must be between 0 and 1")
     y_disc = np.sort(np.unique(ybin))
     if len(y_disc) == 1:
         raise ValueError("y must contain 0 and 1")
     if y_disc[0] != 0 or y_disc[1] != 1:
         raise ValueError("y must only contain 0 and 1")
-    if len(p1) != len(ybin):
+    if len(p) != len(ybin):
         raise ValueError("p and y must have same length")
-    x = p1.copy()
+
+    ptype = detect_ptype(p)
+    x = p.copy()
     y = ybin.copy()
     x_order = np.argsort(x)
     x = x[x_order]
@@ -97,7 +108,7 @@ def reliabilitydiag(p1, ybin):
 
     # region_method equals resampling
     regions = region_resampling(cases, bins, region_level=0.9, region_position='diagonal', n_boot=100)
-    reldiag_object = reldiag(cases = cases, bins = bins, regions = regions, scores = scores)
+    reldiag_object = reldiag(cases = cases, bins = bins, regions = regions, scores = scores, ptype = ptype)
     return reldiag_object
 
 
@@ -220,6 +231,16 @@ def bound_correction(bound, x, CEP_est, position):
         # Access the interpolated values
         return result_y
 
+
+def detect_ptype(x):
+    x_unique = np.sort(np.unique(x))
+    if len(x_unique) == 1:
+        return 'discrete'
+    elif np.min(np.diff(x_unique)) >= 0.01:
+        return 'discrete'
+    else:
+        return 'continuous'
+        
 
 
 
